@@ -11,7 +11,6 @@ class CategoryAdmin(admin.ModelAdmin):
 
     list_display = ('id', 'title')
     search_fields = ('title',)
-    ordering = ('id',)
 
 
 @admin.register(Quiz)
@@ -20,7 +19,6 @@ class QuizAdmin(admin.ModelAdmin):
 
     list_display = ('id', 'title', 'description')
     search_fields = ('title', 'description')
-    ordering = ('id',)
 
 
 @admin.register(Question)
@@ -30,4 +28,3 @@ class QuestionAdmin(admin.ModelAdmin):
     list_display = ('id', 'text', 'category', 'quiz', 'difficulty')
     search_fields = ('text', 'description')
     list_filter = ('difficulty', 'category', 'quiz')
-    ordering = ('id',)

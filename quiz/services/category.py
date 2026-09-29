@@ -4,6 +4,7 @@ from django.shortcuts import get_object_or_404
 
 from quiz.dao import AbstractCategoryService
 from quiz.models import Category
+from quiz.services.utils import update_object
 
 
 class CategoryService(AbstractCategoryService):
@@ -19,17 +20,13 @@ class CategoryService(AbstractCategoryService):
 
     def create_category(self, title: str) -> Category:
         """Создает категорию вопросов."""
-        return Category.objects.create(title=title)
+        category, _ = Category.objects.get_or_create(title=title)
+        return category
 
     def update_category(self, category_id: int, data: dict) -> Category:
         """Обновляет категорию новыми данными."""
-        category = self.get_category(category_id)
-        for key, value in data.items():
-            setattr(category, key, value)
-        category.save()
-        return category
+        return update_object(Category, category_id, data)
 
     def delete_category(self, category_id: int) -> None:
         """Удаляет категорию."""
-        category = self.get_category(category_id)
-        category.delete()
+        self.get_category(category_id).delete()

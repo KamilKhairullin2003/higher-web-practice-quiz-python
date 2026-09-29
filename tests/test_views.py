@@ -1,5 +1,7 @@
 """Модуль с тестами для контроллеров API"""
 
+from http import HTTPStatus
+
 import pytest
 from django.test import Client
 from django.urls import reverse
@@ -17,11 +19,11 @@ class TestCategoryAPI:
             {'title': 'History'},
             content_type='application/json',
         )
-        assert response.status_code == 201
+        assert response.status_code == HTTPStatus.CREATED
 
         get_url = reverse('category-get-by-id')
         response = client.get(get_url)
-        assert response.status_code == 200
+        assert response.status_code == HTTPStatus.OK
         assert response.json()[0]['title'] == 'History'
 
     def test_category_detail_update_delete(self, client: Client) -> None:
@@ -35,7 +37,7 @@ class TestCategoryAPI:
         detail_url = reverse('category-detail', kwargs={'id': cat_id})
 
         get_resp = client.get(detail_url)
-        assert get_resp.status_code == 200
+        assert get_resp.status_code == HTTPStatus.OK
         assert get_resp.json()['title'] == 'Geography'
 
         put_resp = client.put(
@@ -43,11 +45,11 @@ class TestCategoryAPI:
             {'title': 'World Geography'},
             content_type='application/json',
         )
-        assert put_resp.status_code == 200
+        assert put_resp.status_code == HTTPStatus.OK
         assert put_resp.json()['title'] == 'World Geography'
 
         del_resp = client.delete(detail_url)
-        assert del_resp.status_code == 204
+        assert del_resp.status_code == HTTPStatus.NO_CONTENT
 
 
 @pytest.mark.django_db
@@ -62,14 +64,14 @@ class TestQuizAndQuestionAPI:
             {'title': 'Django Quiz', 'description': 'Test your Django skills'},
             content_type='application/json',
         )
-        assert create_resp.status_code == 201
+        assert create_resp.status_code == HTTPStatus.CREATED
         quiz_id = create_resp.json()['id']
 
-        assert client.get(list_url).status_code == 200
+        assert client.get(list_url).status_code == HTTPStatus.OK
 
         by_title_url = reverse('quiz-by-title', kwargs={'title': 'Django'})
         title_resp = client.get(by_title_url)
-        assert title_resp.status_code == 200
+        assert title_resp.status_code == HTTPStatus.OK
         assert len(title_resp.json()) == 1
 
         detail_url = reverse('quiz-detail', kwargs={'id': quiz_id})
@@ -78,10 +80,10 @@ class TestQuizAndQuestionAPI:
             {'title': 'Django Pro Quiz', 'description': 'Updated'},
             content_type='application/json',
         )
-        assert put_resp.status_code == 200
+        assert put_resp.status_code == HTTPStatus.OK
         assert put_resp.json()['title'] == 'Django Pro Quiz'
 
-        assert client.delete(detail_url).status_code == 204
+        assert client.delete(detail_url).status_code == HTTPStatus.NO_CONTENT
 
     def test_question_crud_check_and_random(self, client: Client) -> None:
         """
@@ -120,7 +122,7 @@ class TestQuizAndQuestionAPI:
             question_payload,
             content_type='application/json'
         )
-        assert q_resp.status_code == 201
+        assert q_resp.status_code == HTTPStatus.CREATED
         q_id = q_resp.json()['id']
 
         by_text_url = reverse('question-by-text', kwargs={'text': 'DRF'})
@@ -132,12 +134,12 @@ class TestQuizAndQuestionAPI:
             {'answer': 'Django REST Framework'},
             content_type='application/json',
         )
-        assert check_resp.status_code == 200
+        assert check_resp.status_code == HTTPStatus.OK
         assert check_resp.json()['is_correct'] is True
 
         random_url = reverse('quiz-random-question', kwargs={'id': quiz_id})
         random_resp = client.get(random_url)
-        assert random_resp.status_code == 200
+        assert random_resp.status_code == HTTPStatus.OK
         assert random_resp.json()['id'] == q_id
 
         q_detail_url = reverse('question-detail', kwargs={'id': q_id})
@@ -145,4 +147,4 @@ class TestQuizAndQuestionAPI:
         assert client.put(
             q_detail_url, question_payload, content_type='application/json'
         ).status_code == 200
-        assert client.delete(q_detail_url).status_code == 204
+        assert client.delete(q_detail_url).status_code == HTTPStatus.NO_CONTENT
